@@ -49,7 +49,7 @@ A equipe possui **11 integrantes**, organizados em **quatro duplas e um trio**.
 | Grupo | Tamanho | Frente principal | Integrantes |
 | --- | ---: | --- | --- |
 | Grupo 1 | 2 | Infraestrutura, hospedagem e DevOps | Julio + 1 a definir |
-| Grupo 2 | 2 | Backend, dados e IA | 2 a definir |
+| Grupo 2 | 2 | Backend, dados e IA | André e Giovanni |
 | Grupo 3 | 2 | Backend, pagamentos e regras de negócio | Pedro Paulo +1 a definir |
 | Grupo 4 | 2 | Produto, requisitos e frontend | Rafael e Guilherme |
 | Grupo 5 | 3 | UX/UI, prototipação e frontend | João, Gabriel e Ana Luiza |
