@@ -137,7 +137,7 @@ Da funcionalidade que não pode faltar no dia do lançamento até o que só volt
 
 ---
 
-## 6. Como saber que a onda 1 está pronta
+## 6. Como saber que a parte 1 está pronta
 
 Critérios iniciais para os fluxos mais críticos do lançamento — ponto de partida para o time técnico refinar em histórias de usuário.
 
@@ -172,7 +172,7 @@ Critérios iniciais para os fluxos mais críticos do lançamento — ponto de pa
 O frontend atual tem mais de 30 páginas. Cortar o escopo do backend para o MVP também reduz o que precisa ser mantido, testado e carregado no app.
 
 | Mantidas | Simplificadas | Ocultadas do MVP |
-|---|---|---|'
+|---|---|---|
 | Login / Onboarding | Formulário de transação — só campos essenciais visíveis por padrão | Notificações |
 | Dashboard | Orçamento — sem cópia entre meses | Automações |
 | Transações e Upload | Metas — uma metodologia só | Conquistas |
