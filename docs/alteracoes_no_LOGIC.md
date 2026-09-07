@@ -23,26 +23,25 @@
 
 ## A seguir as alterações que vão para o arquivo: 
 
-### 2.2 Fluxo Financeiro Consolidado (Regra Mestra do MVP)
-
-Para eliminar variações e garantir a exatidão contábil do MVP, o sistema obedece a um fluxo financeiro consolidado de três etapas:
+### 2.2 Fluxo Financeiro Consolidado (Regra Mestra)
+Para eliminar variações contábeis e ruídos no MVP, o Biveto App segue um fluxo financeiro estrito:
 1. **Origem do Gasto (A Transação):** Toda transação de saída deve ser classificada como **Despesa Imediata** (debita de Conta Corrente/Poupança/Dinheiro) ou **Despesa a Prazo** (debita de Cartão de Crédito).
 2. **Passivos Transitórios:** Transações de Cartão de Crédito não afetam o saldo líquido das contas bancárias até a liquidação. Elas apenas compõem a fatura do período.
-3. **Liquidação (Pagamento Mestre):** O pagamento da fatura é o evento unificador. Ele debita o valor exato de uma Conta Base e zera o passivo da Fatura (mudando status para `PAID` ou `PARTIAL`).
+3. **Liquidação (Pagamento Mestre):** O pagamento da fatura é o evento unificador. Ele debita o valor exato de uma Conta Base e zera o passivo da Fatura.
 
 ### 2.3 Fluxos Críticos Revisados
 
 #### FLUXO 1: Upload e Conciliação de Transações (Sem Tolerâncias)
-1. Usuário faz upload de Fatura/Comprovante (OCR via LLM)
-2. Backend extrai itens e Frontend exibe lista para conciliação
+1. Usuário faz upload de Fatura/Comprovante (OCR via LLM).
+2. Backend extrai itens e Frontend exibe lista para conciliação.
 3. Usuário valida a transação:
-   - Se nova: Cria transação e consolida.
-   - Se parcela/recorrente: O sistema exige "Match Exato" de valor e data para unificar a transação futura (`is_paid=false`) com a real. Se houver divergência, exige confirmação manual do usuário para evitar corrupção de saldo.
+   - Se for transação nova: O sistema cria a transação e consolida.
+   - Se for parcela/recorrente: O sistema exige **Match Exato** de valor e data para unificar a previsão (`is_paid=false`) com a transação real. Divergências bloqueiam a automação e exigem confirmação manual, evitando corrupção de saldo.
 
 #### FLUXO 2: Pagamento de Fatura (Liquidação)
-1. Usuário acessa `/invoices`, seleciona fatura `OPEN` ou `CLOSED` e clica "Pagar".
-2. Backend valida Requisitos de Pagamento (REQ-PAG-01 e REQ-PAG-02).
-3. Cria transação de saída (`EXPENSE`) isolada na Conta Base selecionada.
+1. Usuário acessa `/invoices`, seleciona a fatura e clica em "Pagar".
+2. Backend valida Requisitos de Pagamento (REQ-PAG-01).
+3. Cria transação de saída (`EXPENSE`) isolada na Conta Base.
 4. Atualiza status da fatura para `PAID` ou `PARTIAL`.
 
 ---
@@ -50,27 +49,26 @@ Para eliminar variações e garantir a exatidão contábil do MVP, o sistema obe
 ## 3) Regras de Negócio e Requisitos de Pagamento
 
 ### 3.1 Requisitos Registrados de Pagamentos
-Para evitar ruídos no fluxo de caixa, os pagamentos obedecem aos seguintes requisitos estritos:
-* **REQ-PAG-01 (Liquidez Restrita):** Pagamentos de faturas ou dívidas só podem ter como origem contas com alta liquidez (`type IN ['checking', 'savings', 'cash']`). Pagar crédito com crédito gera erro 400.
-* **REQ-PAG-02 (Pagamentos Parciais):** Pagamentos menores que o montante total devido devem ser aceitos. A fatura recebe o status `PARTIAL` e o sistema rola o saldo remanescente para o mês subsequente.
-* **REQ-PAG-03 (Isolamento de Analytics):** Transações geradas pela ação de "Pagamento de Fatura" recebem marcação interna e são ignoradas no cálculo do `total_expense` mensal, evitando contagem dupla (já que o gasto ocorreu na transação original do cartão).
+Para evitar ruídos no fluxo de caixa, os pagamentos obedecem a requisitos estritos:
+* **REQ-PAG-01 (Liquidez Restrita):** Pagamentos de faturas só podem ter como origem contas com alta liquidez (`type IN ['checking', 'savings', 'cash']`). Tentar pagar usando outro cartão de crédito gera erro 400.
+* **REQ-PAG-02 (Pagamentos Parciais):** Pagamentos menores que o montante total devido mudam o status da fatura para `PARTIAL`. O sistema rola o saldo devedor remanescente automaticamente para a fatura do mês subsequente.
+* **REQ-PAG-03 (Isolamento de Analytics):** Transações geradas pela ação de "Pagamento de Fatura" recebem uma marcação interna e são ignoradas no cálculo do `total_expense` mensal, evitando a contagem dupla da mesma despesa no dashboard.
 
-### 3.2 Tabela de Regras Atualizada (MVP)
+### 3.2 Tabela de Regras Funcionais (Atualizada)
 
-| REGRA_ID | Descrição | Gatilho | Entrada/Saída | Status / Modificação MVP |
-|----------|-----------|---------|---------------|--------------------------|
-| **RN001** | Transação parcelada cria série automaticamente | Confirmar item com is_installment=true | `{current, total}` → InstallmentSeries | Mantida sem alterações. |
-| **RN002** | Parcelas futuras são projetadas (`is_paid=false`) | create_future_installments | Série → N transações futuras | Mantida sem alterações. |
-| **RN003** | Fatura calculada pelo closing_day do cartão | Criar transação com credit_card_id | Data transação → período fatura | Mantida sem alterações. |
-| **RN004** | Detecção e Consolidação (Match Exato) | Confirmar transação de documento | Retorna conflito ou atualiza existente | **Atualizada:** Remove tolerâncias e variações. Exige exatidão de centavos para consolidar previsão. |
-| **RN005** | Restrição de Pagamento de Fatura | `pay_invoice()` | 400 Bad Request se origem for crédito | Mantida e expandida no REQ-PAG-01. |
-| **RN006** | Família (Household) unifica visão de gastos | Listar transações | user.license_id → household_user_ids | Mantida sem alterações. |
-| **RN007** | Status fatura: OPEN→CLOSED→PAID/PARTIAL | Pagamento de Fatura | Baseado em fechamento e valor | Mantida e expandida no REQ-PAG-02. |
-
-### 3.3 Casos Extremos e Conflitos Removidos
-
-| Regra Original | Caso Extremo / Conflito | Resolução no Novo Fluxo |
-|----------------|-------------------------|-------------------------|
-| RN004 (Antiga) | Parcela com variação de centavos lida pelo OCR. | O sistema **não** faz atualização cega. Diferenças bloqueiam a consolidação automática, forçando o usuário a aprovar manualmente. |
-| RN012 (Removida)| Tolerância de 5% para agrupar compras. | **Removida do MVP**. Gerava ruído contábil severo e falso-positivos em compras frequentes no mesmo estabelecimento. |
-| RN010 (Antiga) | Pagamento maior que a fatura fechada. | A validação do pagamento bloqueia a transação na origem; o valor pago deve obrigatoriamente ser `<= total_due`. |
+| REGRA_ID | Descrição | Gatilho | Modificação no MVP |
+|----------|-----------|---------|--------------------|
+| **RN001** | Transação parcelada cria série automaticamente | is_installment=true | Mantida. |
+| **RN002** | Parcelas futuras são projetadas (`is_paid=false`) | create_future_installments | Mantida. |
+| **RN003** | Fatura calculada pelo closing_day do cartão | Criar transação no cartão | Mantida. |
+| **RN004** | Detecção e Consolidação (Match Exato) | Confirmar transação | **Atualizada:** Tolerâncias removidas. Exige exatidão de centavos. |
+| **RN005** | Restrição de Pagamento de Fatura | `pay_invoice()` | **Atualizada:** Base para o REQ-PAG-01. |
+| **RN006** | Família (Household) unifica visão de gastos | Listar transações | Mantida. |
+| **RN007** | Status fatura: OPEN→CLOSED→PAID/PARTIAL | Pagamento de Fatura | **Atualizada:** Absorveu o REQ-PAG-02. |
+| **RN008** | Analytics exclui pagamentos de fatura | Calcular total_expense | **Atualizada:** Base para o REQ-PAG-03. |
+| **RN009** | Merchant normalizado para matching | Criar transação | Mantida. |
+| **RN010** | Recorrente verificada antes de criar | Criar recorrente | Adiada (Pós-MVP). |
+| **RN011** | Série de parcelas match por tolerância 5% | Buscar série | **Removida:** Gerava ruído contábil. |
+| **RN012** | Registro público desabilitado | Tentar registrar | Mantida. |
+| **RN013** | Admin pode ver todos usuários/licenças | Acessar `/admin` | Mantida. |
+| **RN014** | OCR usa prompt específico por banco | Processar fatura | Mantida. |
