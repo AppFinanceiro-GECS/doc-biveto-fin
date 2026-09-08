@@ -15,16 +15,31 @@ GitHub de cada grupo.
 
 ![Print da reunião de alinhamento — Sprint 1](reuniao-alinhamento-sprint1.png)
 
-## Andamento das tarefas — Grupo 1
+## Entregas da Sprint
 
-Atividades já concluídas por integrante até o momento da reunião
-(08/09/2026), uma por linha. Detalhamento completo na
-[issue #5](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/5).
+Atividades já concluídas por trio/dupla até o momento da reunião
+(08/09/2026), uma por linha, com a evidência correspondente. Cada grupo
+deve preencher sua própria seção seguindo o padrão da tabela abaixo.
+
+### Grupo 1 — Infraestrutura, hospedagem e DevOps
+
+Detalhamento completo na [issue #5](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/5).
 
 | Nome do Trio/Dupla | Atividade | Evidência |
 | --- | --- | --- |
 | Julio Dourado e Brenno da Silva Oliveira | Elaborou a viabilidade técnica do iOS (custos, ambiente de build, App Review, TestFlight) | [viabilidade-tecnica-ios.md](viabilidade-tecnica-ios.md) |
 | Julio Dourado e Brenno da Silva Oliveira | Registrou a ata da reunião de alinhamento da Sprint 1 | [reuniao-alinhamento-sprint1.png](reuniao-alinhamento-sprint1.png) |
+
+### Grupo 2 — [completar com o nome da frente]
+
+Detalhamento completo na [issue #4](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/4).
+
+| Nome do Trio/Dupla | Atividade | Evidência |
+| --- | --- | --- |
+| [nome do integrante ou da dupla] | [atividade concluída] | [link para o documento, PR, print ou comentário que comprova a entrega] |
+| [nome do integrante ou da dupla] | [atividade concluída] | [link para o documento, PR, print ou comentário que comprova a entrega] |
+
+> Preencher com as entregas reais do Grupo 2 e remover esta nota.
 
 ## Registro
 
