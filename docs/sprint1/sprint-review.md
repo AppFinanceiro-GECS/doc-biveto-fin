@@ -40,6 +40,16 @@ Detalhamento completo na [issue #4](https://github.com/AppFinanceiro-GECS/doc-bi
 
 > Preencher com as entregas reais do Grupo 2 e remover esta nota.
 
+### Grupo 5 — FrontEnd UI/UX
+
+Detalhamento completo na [issue #4](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/3).
+
+| Nome do Trio/Dupla | Atividade | Evidência |
+| --- | --- | --- |
+| Ana Luiza Pfeilsticker, Gabriel | Construção do manual de marca | https://www.figma.com/design/jWIl7Xa4jKs7m5UmEb6oOe/App-Financeiro?node-id=0-1&t=6beOrK98jMZBvZxw-1 |
+| João | Mapeamento das telas e fluxos atuais | https://www.figma.com/design/jWIl7Xa4jKs7m5UmEb6oOe/App-Financeiro?node-id=0-1&t=6beOrK98jMZBvZxw-1 |
+
+
 ## Registro
 
 Reunião realizada para verificação do andamento das entregas de cada
