@@ -3,7 +3,6 @@
 **Data:** 08/09/2026
 **Horário:** 09:34
 **Plataforma:** Google Meet
-**Organizador:** Júlio Dourado
 
 ## Pauta
 
