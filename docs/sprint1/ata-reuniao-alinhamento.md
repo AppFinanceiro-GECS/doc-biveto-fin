@@ -31,52 +31,56 @@ GitHub de cada grupo.
 
 ## Andamento das tarefas por grupo
 
-Status de cada atividade das issues da Sprint 1 no momento da reunião
-(08/09/2026). `[x]` = concluída, `[ ]` = pendente/em andamento.
+Atividades já concluídas por integrante até o momento da reunião
+(08/09/2026), uma por linha. Detalhamento completo de cada atividade nas
+issues [#1](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/1)–[#6](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/6).
 
-| Issue | Atividade | Quem participou | Evidência |
-| --- | --- | --- | --- |
-| [#6 Grupo 4](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/6) | [x] Revisar e simplificar a proposta do produto | Rafael Ferreira Leandro, Guilherme Santos | [mvp-biveto (branch `grupo-4-mvp`)](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/tree/grupo-4-mvp) |
-| | [x] Buscar abordagem de menor custo | Rafael Ferreira Leandro, Guilherme Santos | Idem |
-| | [x] Levantar requisitos já implementados | Rafael Ferreira Leandro, Guilherme Santos | Idem |
-| | [x] Classificar o que será mantido, alterado ou removido | Rafael Ferreira Leandro, Guilherme Santos | Idem |
-| | [x] Registrar requisitos no formato verbo + substantivo | Rafael Ferreira Leandro, Guilherme Santos | Idem |
-| | [ ] Consultar o cliente e/ou o Thiago sobre novos requisitos | Rafael Ferreira Leandro, Guilherme Santos | Pendente |
-| | [x] Priorizar as funcionalidades do MVP | Rafael Ferreira Leandro, Guilherme Santos | Idem |
-| | [x] Definir critérios de aceite iniciais | Rafael Ferreira Leandro, Guilherme Santos | Idem |
-| | [x] Avaliar impactos dos requisitos no frontend | Rafael Ferreira Leandro, Guilherme Santos | Idem |
-| [#5 Grupo 1](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/5) | [ ] Pesquisar opções e custos de VPS | Júlio Dourado, Brenno da Silva Oliveira | Pendente |
-| | [ ] Levantar o custo do domínio | Júlio Dourado, Brenno da Silva Oliveira | Pendente |
-| | [ ] Verificar necessidade e custo de *object storage* | Júlio Dourado, Brenno da Silva Oliveira | Pendente |
-| | [~] Levantar burocracias e requisitos de publicação (parte iOS concluída) | Júlio Dourado (iOS) / Brenno da Silva Oliveira (Android, pendente) | [viabilidade-tecnica-ios.md](viabilidade-tecnica-ios.md) |
-| | [~] Apoiar a escolha entre iOS e Android (parte iOS concluída) | Júlio Dourado (iOS) / Brenno da Silva Oliveira (Android, pendente) | [viabilidade-tecnica-ios.md](viabilidade-tecnica-ios.md) |
-| | [ ] Propor estratégia inicial de implantação e publicação | Júlio Dourado, Brenno da Silva Oliveira | Pendente |
-| | [ ] Consolidar custos de infraestrutura com o custo do Gemini | Júlio Dourado, Brenno da Silva Oliveira | Pendente (depende do Grupo 2) |
-| | [ ] Elaborar previsão orçamentária e OMD | Júlio Dourado, Brenno da Silva Oliveira | Pendente |
-| [#4 Grupo 2](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/4) | [ ] Analisar a estrutura atual do backend | André Meyer, Giovanni Dornelas | Pendente |
-| | [ ] Analisar organização e armazenamento dos dados | André Meyer, Giovanni Dornelas | Pendente |
-| | [ ] Identificar integrações necessárias | André Meyer, Giovanni Dornelas | Pendente |
-| | [ ] Identificar requisitos iniciais de segurança | André Meyer, Giovanni Dornelas | Pendente |
-| | [ ] Avaliar o uso do Gemini no MVP | André Meyer, Giovanni Dornelas | Pendente |
-| | [ ] Levantar custos e limitações do Gemini | André Meyer, Giovanni Dornelas | Pendente |
-| | [ ] Avaliar viabilidade dos requisitos de dados e IA | André Meyer, Giovanni Dornelas | Pendente |
-| [#3 Grupo 5](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/3) | [x] Revisar as telas existentes | João V. Farias | Comentário na issue #3 |
-| | [x] Inventariar as telas existentes | João V. Farias | Comentário na issue #3 |
-| | [ ] Agrupar telas por jornada ou módulo | João V. Farias | Pendente |
-| | [ ] Mapear fluxos já desenhados | João V. Farias | Pendente |
-| | [x] Identificar duplicidades ou versões conflitantes | João V. Farias | Comentário na issue #3 |
-| | [x] Levantar assets necessários (logo, ícones, ilustrações) | Ana Luiza Pfeilsticker | [Projeto no Figma](https://www.figma.com/design/jWIl7Xa4jKs7m5UmEb6oOe/App-Financeiro?node-id=0-1) |
-| | [x] Definir paleta de cores | Ana Luiza Pfeilsticker | [Manual de Marca.pdf](https://github.com/user-attachments/files/31953553/Manual.de.Marca.pdf) |
-| | [x] Definir tipografia | Ana Luiza Pfeilsticker | [Manual de Marca.pdf](https://github.com/user-attachments/files/31953553/Manual.de.Marca.pdf) |
-| | [ ] Documentar espaçamentos, grid e raio de borda | Gabriel Marques de Souza | Pendente |
-| | [ ] Catalogar componentes visuais recorrentes | Gabriel Marques de Souza | Pendente |
-| [#2 Grupo 3](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/2) | [ ] Levantar as regras de negócio existentes | Pedro Paulo, Lucas Meireles | Pendente |
-| | [ ] Revisar os fluxos financeiros e de pagamento | Pedro Paulo, Lucas Meireles | Pendente |
-| | [ ] Identificar variações, conflitos e ruídos | Pedro Paulo, Lucas Meireles | Pendente |
-| | [ ] Definir uma regra de negócio única com o Grupo 4 | Pedro Paulo, Lucas Meireles | Pendente (depende do Grupo 4) |
-| | [ ] Registrar os requisitos relacionados a pagamentos | Pedro Paulo, Lucas Meireles | Pendente |
-| | [ ] Atualizar o mapa de lógica | Pedro Paulo, Lucas Meireles | Pendente |
-| [#1](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/1) | [x] Preencher equipe e cargos | Todo o time | [Organização Inicial](../Organização-Inicial.md) |
+### Grupo 1 — Infraestrutura, hospedagem e DevOps ([issue #5](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/5))
+
+| Nome do trio | Atividade |
+| --- | --- |
+| Júlio Dourado | Elaborou a viabilidade técnica do iOS (custos, ambiente de build, App Review, TestFlight) |
+| Júlio Dourado | Registrou a ata da reunião de alinhamento da Sprint 1 |
+| Brenno da Silva Oliveira | Pendente — viabilidade técnica do Android ainda não registrada na issue |
+
+### Grupo 2 — Backend, dados e IA ([issue #4](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/4))
+
+| Nome do trio | Atividade |
+| --- | --- |
+| André Meyer | Pendente — nenhuma atividade registrada na issue até o momento |
+| Giovanni Dornelas | Pendente — nenhuma atividade registrada na issue até o momento |
+
+### Grupo 3 — Backend, pagamentos e regras de negócio ([issue #2](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/2))
+
+| Nome do trio | Atividade |
+| --- | --- |
+| Pedro Paulo | Pendente — nenhuma atividade registrada na issue até o momento |
+| Lucas Meireles | Pendente — nenhuma atividade registrada na issue até o momento |
+
+### Grupo 4 — Produto, requisitos e frontend ([issue #6](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/6))
+
+| Nome do trio | Atividade |
+| --- | --- |
+| Rafael Ferreira Leandro | Revisou e simplificou a proposta do produto |
+| Rafael Ferreira Leandro | Levantou os requisitos já implementados |
+| Rafael Ferreira Leandro | Classificou o que será mantido, alterado ou removido |
+| Rafael Ferreira Leandro | Priorizou as funcionalidades do MVP |
+| Rafael Ferreira Leandro | Criou o documento mvp-biveto na branch `grupo-4-mvp` |
+| Guilherme Santos | Registrou os requisitos no formato verbo + substantivo |
+| Guilherme Santos | Definiu os critérios de aceite iniciais |
+| Guilherme Santos | Avaliou os impactos dos requisitos no frontend |
+
+### Grupo 5 — UX/UI, prototipação e frontend ([issue #3](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/3))
+
+| Nome do trio | Atividade |
+| --- | --- |
+| João V. Farias | Revisou as telas existentes |
+| João V. Farias | Inventariou as telas existentes |
+| João V. Farias | Identificou duplicidades e versões conflitantes de telas |
+| Ana Luiza Pfeilsticker | Levantou os assets necessários (logo, ícones, ilustrações) |
+| Ana Luiza Pfeilsticker | Definiu a paleta de cores do manual de marca |
+| Ana Luiza Pfeilsticker | Definiu a tipografia do manual de marca |
+| Gabriel Marques de Souza | Pendente — espaçamentos/grid e componentes visuais ainda não catalogados |
 
 ## Registro
 
