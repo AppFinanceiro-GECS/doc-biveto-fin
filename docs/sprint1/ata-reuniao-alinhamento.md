@@ -2,7 +2,7 @@
 
 **Data:** 08/09/2026
 **Horário:** 09:34
-**Plataforma:** Google Meet (código da reunião: `mhm-tjem-qqe`)
+**Plataforma:** Google Meet
 **Organizador:** Júlio Dourado
 
 ## Pauta
