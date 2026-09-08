@@ -21,10 +21,10 @@ Atividades já concluídas por integrante até o momento da reunião
 (08/09/2026), uma por linha. Detalhamento completo na
 [issue #5](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/5).
 
-| Nome do Trio/Dupla | Atividade |
-| --- | --- |
-| Julio Dourado | Elaborou a viabilidade técnica do iOS (custos, ambiente de build, App Review, TestFlight) |
-| Julio Dourado | Registrou a ata da reunião de alinhamento da Sprint 1 |
+| Nome do Trio/Dupla | Atividade | Evidência |
+| --- | --- | --- |
+| Julio Dourado e Brenno da Silva Oliveira | Elaborou a viabilidade técnica do iOS (custos, ambiente de build, App Review, TestFlight) | [viabilidade-tecnica-ios.md](viabilidade-tecnica-ios.md) |
+| Julio Dourado e Brenno da Silva Oliveira | Registrou a ata da reunião de alinhamento da Sprint 1 | [reuniao-alinhamento-sprint1.png](reuniao-alinhamento-sprint1.png) |
 
 ## Registro
 
