@@ -26,7 +26,7 @@ Detalhamento completo na [issue #5](https://github.com/AppFinanceiro-GECS/doc-bi
 
 | Nome do Trio/Dupla | Atividade | Evidência |
 | --- | --- | --- |
-| Julio Dourado e Brenno da Silva Oliveira | Elaborou a viabilidade técnica do iOS (custos, ambiente de build, App Review, TestFlight) | [viabilidade-tecnica-ios.md](viabilidade-tecnica-ios.md) |
+| Julio Dourado e Brenno da Silva Oliveira | Elaborou a viabilidade técnica do iOS (custos, ambiente de build, App Review, TestFlight) | [viabilidade-tecnica-ios.md](entregaveis/viabilidade-tecnica-ios.md) |
 | Julio Dourado e Brenno da Silva Oliveira | Registrou a ata da reunião de alinhamento da Sprint 1 | [reuniao-alinhamento-sprint1.png](../assets/reuniao-alinhamento-sprint1.png) |
 
 ### Grupo 2 — [completar com o nome da frente]
