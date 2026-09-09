@@ -571,3 +571,381 @@ A IA não deve:
 - criar diretamente efeitos financeiros sem validação.
 
 Isso mantém o único componente probabilístico isolado das regras determinísticas.
+
+---
+
+## 7. Proposta inicial de arquitetura do MVP
+
+### 7.1 Visão geral
+
+A arquitetura proposta continua simples:
+
+```text
+                         Usuário
+                            │
+                            ▼
+                     React / PWA
+                            │
+                          HTTPS
+                            │
+                            ▼
+                ┌──────────────────────┐
+                │         VPS          │
+                │                      │
+                │       FastAPI        │
+                │  Monólito Modular    │
+                │                      │
+                │ Auth                 │
+                │ Accounts             │
+                │ Transactions         │
+                │ Documents            │
+                │ Installments         │
+                │ Cards / Invoices     │
+                │ Analytics            │
+                └──────────┬───────────┘
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+              ▼            ▼            ▼
+         PostgreSQL   Object Storage   IA
+```
+
+A melhoria proposta não adiciona novos serviços obrigatórios.
+
+Ela adiciona principalmente **regras claras de passagem entre os componentes**.
+
+### 7.2 Entrada confiável
+
+Toda entrada deve passar por contratos e validações antes de produzir efeitos.
+
+No caso dos documentos:
+
+```text
+Upload
+   │
+   ▼
+Autenticação
+   │
+   ▼
+Validação do arquivo
+   │
+   ▼
+Hash / duplicidade
+   │
+   ▼
+Persistência do documento
+   │
+   ▼
+Processamento
+```
+
+O princípio é:
+
+> **Persistir e validar antes de processar.**
+
+Isso evita gastar processamento de IA com arquivos inválidos ou duplicados e melhora a rastreabilidade em caso de falha.
+
+### 7.3 Domínio financeiro determinístico
+
+O núcleo financeiro permanece isolado da IA:
+
+```text
+Accounts
+Transactions
+Invoices
+Installments
+Analytics
+```
+
+Esses componentes devem executar regras determinísticas e testáveis.
+
+A mesma entrada financeira deve produzir sempre o mesmo resultado, independentemente do modelo de IA configurado.
+
+### 7.4 Processamento de documentos e IA
+
+O fluxo recomendado é:
+
+```text
+Documento
+    │
+    ▼
+Validação / deduplicação
+    │
+    ▼
+Persistência
+    │
+    ▼
+AI/OCR Service
+    │
+    ▼
+ExtractionResult
+    │
+    ▼
+Barreira determinística
+    │
+    ▼
+Revisão do usuário
+    │
+    ▼
+Domínio financeiro
+```
+
+O provider e modelo devem ser configuráveis.
+
+A inteligência artificial permanece isolada atrás de um service próprio.
+
+### 7.5 Processamento assíncrono
+
+O processamento de IA pode continuar utilizando o mecanismo simples já existente no primeiro momento.
+
+Não se recomenda introduzir agora:
+
+```text
+Redis
+Celery
+RabbitMQ
+workers independentes
+```
+
+O MVP pode operar com:
+
+```text
+FastAPI
++
+BackgroundTasks
++
+status persistido
+```
+
+Desde que o processamento tenha status identificável, por exemplo:
+
+```text
+PENDING
+PROCESSING
+REVIEW_REQUIRED
+COMPLETED
+FAILED
+```
+
+Caso o volume futuro justifique, o processamento poderá evoluir para:
+
+```text
+API
+  ↓
+Fila
+  ↓
+Worker
+  ↓
+IA
+```
+
+sem alterar o domínio financeiro.
+
+### 7.6 Observabilidade mínima
+
+Não se recomenda construir um painel operacional completo neste momento.
+
+Porém, o sistema deve registrar informações suficientes para diagnóstico:
+
+- documento;
+- status;
+- horário de início;
+- horário de fim;
+- provider/modelo;
+- erro, quando houver;
+- duração do processamento.
+
+Também devem existir:
+
+```text
+logs estruturados
++
+health check
++
+registro de erros
+```
+
+Métricas e tracing distribuído podem ser adicionados posteriormente, conforme crescimento da aplicação.
+
+---
+
+## 8. Decisões técnicas recomendadas
+
+| Área | Decisão |
+|---|---|
+| Arquitetura | **Manter monólito modular** |
+| Backend | **Manter FastAPI** |
+| ORM | **Manter SQLAlchemy Async** |
+| Migrations | **Manter Alembic** |
+| Desenvolvimento | **SQLite permanece disponível** |
+| Produção | **Utilizar PostgreSQL** |
+| Documentos | **Object storage em produção** |
+| Ingestão | **Validar, deduplicar e persistir antes da IA** |
+| Rastreabilidade | **Relacionar documento, extração e transação** |
+| IA | **Isolar atrás de service próprio** |
+| Regras financeiras | **100% determinísticas no backend** |
+| Pós-IA | **Criar barreira determinística antes de efeitos financeiros** |
+| Processamento assíncrono | **Manter solução simples inicialmente** |
+| Fila distribuída | **Adiar até existir necessidade real** |
+| Observabilidade | **Logs, status e health check inicialmente** |
+| Scheduler | **Não tornar dependência crítica do lançamento** |
+| Escala inicial | **Uma instância da aplicação** |
+| Microserviços | **Não introduzir no MVP** |
+
+Cinco princípios passam a orientar especialmente o processamento de documentos:
+
+1. **persistir antes de processar;**
+2. **deduplicar antes de utilizar IA;**
+3. **isolar o componente probabilístico;**
+4. **validar deterministicamente a saída da IA;**
+5. **preservar rastreabilidade até a transação final.**
+
+---
+
+## 9. Riscos técnicos e próximos passos
+
+### 9.1 Riscos técnicos
+
+| Risco | Impacto | Prioridade | Tratamento |
+|---|---|---:|---|
+| Matching ainda utiliza tolerâncias antigas | Consolidação incorreta | Alta | Implementar match exato |
+| Conceito de liquidez não está formalizado | Pagamento por origem inválida | Alta | Normalizar regra |
+| Rollover parcial precisa validação | Fatura inconsistente | Alta | Completar REQ-PAG-02 |
+| Analytics pode duplicar pagamento | Indicadores incorretos | Alta | Identificação explícita |
+| Arquivo local na VPS | Perda/backup difícil | Alta | Object storage |
+| Falha durante processamento em background | Documento pode ficar incompleto | Média | Status persistido e possibilidade de reprocessamento |
+| Saída da IA sem barreira suficiente | Dados financeiros incorretos | Alta | Validação + revisão humana |
+| Modelo/provider acoplado | Custo e manutenção | Média | Configuração centralizada |
+| Baixa rastreabilidade de execução | Diagnóstico difícil | Média | Registrar status/provider/duração |
+| Poucos testes de fluxos críticos | Regressão | Alta | Priorizar testes |
+
+### 9.2 Próximos passos
+
+Recomenda-se que as próximas sprints priorizem:
+
+1. remover as tolerâncias antigas do matching;
+2. consolidar o conceito de conta de liquidez;
+3. implementar integralmente REQ-PAG-01, 02 e 03;
+4. formalizar o fluxo `documento → extração → confirmação → transação`;
+5. garantir deduplicação antes do processamento da IA;
+6. validar a saída da IA antes do domínio financeiro;
+7. registrar status do processamento;
+8. permitir reprocessamento controlado em caso de falha;
+9. centralizar provider e modelo de IA;
+10. implementar abstração de object storage;
+11. criar testes dos principais fluxos;
+12. validar PostgreSQL;
+13. alinhar VPS, storage, backup e deploy com o Grupo 1.
+
+Fila distribuída, workers independentes, tracing completo e dashboards operacionais devem permanecer como **evoluções futuras**, e não como requisitos do lançamento.
+
+---
+
+## 10. Conclusão
+
+A análise mostra que o Biveto-fin já possui uma base técnica suficiente para suportar o MVP.
+
+Não é necessária uma nova arquitetura de backend.
+
+Recomenda-se preservar:
+
+```text
+FastAPI
+SQLAlchemy
+Alembic
+PostgreSQL
+Docker
+Monólito modular
+```
+
+e concentrar a evolução em três objetivos.
+
+### Redução de escopo
+
+A aplicação deve expor inicialmente apenas as funcionalidades diretamente associadas ao lançamento.
+
+### Correção das regras financeiras
+
+Devem ser adequados principalmente:
+
+- match exato;
+- liquidez;
+- pagamentos parciais;
+- Analytics.
+
+### Confiabilidade do fluxo de documentos e IA
+
+O processamento deve seguir:
+
+```text
+Documento
+   │
+   ▼
+Validar
+   │
+   ▼
+Deduplicar
+   │
+   ▼
+Persistir
+   │
+   ▼
+Processar com IA
+   │
+   ▼
+Validar saída
+   │
+   ▼
+Revisão humana
+   │
+   ▼
+Domínio financeiro
+```
+
+A principal separação arquitetural passa a ser:
+
+```text
+           IA
+     probabilística
+          │
+          ▼
+      Extração
+          │
+═══════════════════
+Barreira determinística
+═══════════════════
+          │
+          ▼
+  Domínio financeiro
+    determinístico
+```
+
+Isso permite aproveitar IA sem permitir que comportamentos probabilísticos controlem diretamente valores, saldos ou regras financeiras.
+
+A arquitetura final continua simples:
+
+```text
+React / PWA
+     │
+     ▼
+FastAPI
+     │
+     ├── PostgreSQL
+     ├── Object Storage
+     └── Serviço de IA
+```
+
+Não são necessários, neste primeiro momento:
+
+```text
+microserviços
+Kubernetes
+Redis
+Celery
+fila distribuída
+workers independentes
+tracing distribuído
+múltiplas instâncias
+```
+
+Assim, os princípios aproveitados da arquitetura anterior aumentam a confiabilidade e a rastreabilidade do Biveto-fin **sem tornar o MVP mais complexo do que o necessário**.
