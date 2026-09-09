@@ -206,3 +206,169 @@ Monólito modular focado no MVP
 ```
 
 ---
+
+## 4. Diagnóstico dos dados
+
+### 4.1 Persistência
+
+A aplicação utiliza SQLAlchemy 2 de forma assíncrona e suporta:
+
+```text
+SQLite
+e
+PostgreSQL
+```
+
+SQLite pode continuar sendo utilizado para desenvolvimento local.
+
+Para produção recomenda-se PostgreSQL.
+
+O domínio possui forte relacionamento entre:
+
+```text
+Usuário
+   │
+   ├── Contas
+   │     └── Transações
+   │
+   ├── Cartões
+   │     └── Faturas
+   │           └── Transações
+   │
+   └── Documentos
+```
+
+Por isso, o banco relacional atual é adequado.
+
+Não foi identificada necessidade de banco NoSQL.
+
+### 4.2 Modelo de dados
+
+A versão analisada possui 52 tabelas SQLAlchemy.
+
+As principais entidades relacionadas ao lançamento são:
+
+```text
+users
+licenses
+invitations
+
+accounts
+
+transactions
+transaction_payments
+transaction_audit
+categories
+merchants
+
+credit_cards
+credit_card_invoices
+
+installment_series
+
+documents
+document_extractions
+```
+
+As demais entidades acompanham funcionalidades pós-entrega ou de backlog.
+
+O Grupo 4 adotou como princípio que retirar algo do MVP significa **adiar**, e não necessariamente apagar imediatamente código ou dados existentes.
+
+Portanto, não se recomenda realizar grandes migrations destrutivas apenas para reduzir o número de tabelas.
+
+### 4.3 Migrations
+
+O projeto utiliza Alembic e possui histórico versionado de alterações de schema.
+
+Esse mecanismo deve ser preservado.
+
+Toda alteração estrutural necessária para implementar as novas regras do MVP deve continuar sendo registrada através de migration.
+
+### 4.4 Armazenamento de documentos e rastreabilidade
+
+Atualmente os documentos são armazenados localmente em:
+
+```text
+./uploads
+```
+
+enquanto o banco guarda metadados e informações sobre o processamento.
+
+Para desenvolvimento, essa solução continua aceitável.
+
+Para produção, recomenda-se:
+
+```text
+DocumentService
+      │
+      ▼
+StorageService
+      │
+      ├── Local Storage
+      │      └── desenvolvimento
+      │
+      └── Object Storage
+             └── produção
+```
+
+Além da mudança de armazenamento, recomenda-se preservar uma cadeia de rastreabilidade mínima:
+
+```text
+Documento recebido
+      │
+      ▼
+Extração realizada
+      │
+      ▼
+Resultado apresentado
+      │
+      ▼
+Correção/confirmação do usuário
+      │
+      ▼
+Transação criada
+```
+
+O objetivo não é implementar event sourcing.
+
+O objetivo é conseguir responder, quando necessário:
+
+> **O que aconteceu com este documento e quais transações foram geradas a partir dele?**
+
+Idealmente, devem permanecer rastreáveis:
+
+- documento original;
+- hash;
+- status;
+- provider/modelo utilizado;
+- resultado extraído;
+- confirmação realizada;
+- transações relacionadas.
+
+### 4.5 Conclusão dos dados
+
+A estrutura de persistência pode ser mantida:
+
+```text
+Desenvolvimento
+→ SQLite
+
+Produção
+→ PostgreSQL
+
+ORM
+→ SQLAlchemy
+
+Migrations
+→ Alembic
+
+Documentos locais
+→ desenvolvimento
+
+Object Storage
+→ produção
+```
+
+A principal evolução proposta é reforçar a **rastreabilidade entre documento, extração e efeito financeiro**.
+
+---
