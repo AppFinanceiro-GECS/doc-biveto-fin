@@ -372,3 +372,202 @@ Object Storage
 A principal evolução proposta é reforçar a **rastreabilidade entre documento, extração e efeito financeiro**.
 
 ---
+
+## 5. Impacto do MVP aprovado sobre a aplicação
+
+### 5.1 Núcleo do lançamento
+
+A Parte 1 definida pelo Grupo 4 contém:
+
+- autenticação e convite;
+- transação manual;
+- upload e extração;
+- parcelamento;
+- cálculo e pagamento de fatura;
+- resumo mensal;
+- publicação.
+
+Isso concentra o lançamento principalmente nos módulos:
+
+```text
+auth
+admin
+accounts
+transactions
+categories
+documents
+installments
+credit_cards
+analytics
+```
+
+### 5.2 Módulos pós-entrega
+
+Foram definidos para etapa posterior:
+
+```text
+budgets
+household
+recurring
+goals
+```
+
+Esses módulos podem permanecer no repositório sem se tornar dependências do lançamento.
+
+### 5.3 Módulos fora do lançamento
+
+Funcionalidades como:
+
+```text
+debts
+chat
+notifications
+automations
+grocery
+gamification
+benefit_cards
+receipts
+calendar
+mcp
+```
+
+não pertencem ao núcleo inicial ou foram explicitamente classificadas como backlog.
+
+### 5.4 Matriz de evolução
+
+| Módulo | Fase | Situação | Ação |
+|---|---|---|---|
+| `auth` | Lançamento | Base adequada | **Manter** |
+| `admin` | Lançamento/suporte | Convites/licenças | **Manter escopo mínimo** |
+| `accounts` | Lançamento | Liquidez precisa adequação | **Alterar** |
+| `transactions` | Lançamento | Núcleo financeiro | **Manter e adequar regras** |
+| `categories` | Lançamento/suporte | Utilizado por transações | **Manter** |
+| `documents` | Lançamento | IA, storage e rastreabilidade | **Alterar** |
+| `installments` | Lançamento | Possui tolerâncias antigas | **Alterar** |
+| `credit_cards` | Lançamento | Novas regras de pagamento | **Alterar** |
+| `analytics` | Lançamento | Isolamento de pagamento | **Alterar** |
+| `household` | Pós-entrega | Funcionalidade válida | **Preservar** |
+| `budgets` | Pós-entrega | Escopo simplificado | **Preservar** |
+| `goals` | Pós-entrega | Meta simplificada | **Preservar** |
+| `recurring` | Pós-entrega | Depende de scheduler | **Adiar** |
+| Demais módulos de backlog | Futuro | Fora do lançamento | **Não expor** |
+
+---
+
+## 6. Divergências entre o código atual e as regras do MVP
+
+### 6.1 Match exato
+
+A regra consolidada pelo Grupo 3 remove a antiga tolerância utilizada na conciliação.
+
+A consolidação automática passa a exigir:
+
+```text
+valor exato
++
+data exata
+```
+
+Divergências devem exigir revisão manual.
+
+A implementação atual ainda possui regras de tolerância no fluxo de parcelas.
+
+Portanto:
+
+```text
+installments
+→ manter funcionalidade
+→ alterar implementação
+```
+
+### 6.2 Liquidez no pagamento de fatura
+
+REQ-PAG-01 restringe o pagamento de fatura a contas de liquidez.
+
+O conceito precisa ser formalizado no código.
+
+A validação não deve ser simplesmente:
+
+```text
+não é cartão de crédito?
+```
+
+Ela deve responder:
+
+```text
+esta conta é uma origem de liquidez permitida?
+```
+
+### 6.3 Pagamento parcial
+
+REQ-PAG-02 determina:
+
+```text
+Pagamento menor que total
+        │
+        ▼
+status PARTIAL
+        │
+        ▼
+saldo remanescente
+        │
+        ▼
+fatura seguinte
+```
+
+A estrutura atual possui parte do suporte necessário, mas o fluxo completo deve ser validado e completado.
+
+### 6.4 Analytics
+
+REQ-PAG-03 determina que a transação de pagamento da fatura não seja contabilizada novamente como despesa.
+
+Recomenda-se que esse tipo de transação possua identificação explícita de origem, evitando depender apenas da reconstrução através da entidade de fatura.
+
+### 6.5 IA e barreira determinística
+
+O Grupo 4 mantém a extração por IA no MVP, mas exige revisão do usuário antes da criação das transações.
+
+Esse comportamento deve ser formalizado arquiteturalmente através de uma **barreira determinística** entre a IA e o domínio financeiro:
+
+```text
+           ÁREA PROBABILÍSTICA
+
+               Serviço de IA
+                    │
+                    ▼
+             Dados extraídos
+
+════════════════════════════════════
+        BARREIRA DETERMINÍSTICA
+════════════════════════════════════
+
+             validação de schema
+             validação de valores
+             detecção de duplicidade
+             match exato
+             revisão do usuário
+
+                    │
+                    ▼
+
+           DOMÍNIO FINANCEIRO
+```
+
+A IA pode:
+
+- interpretar documentos;
+- identificar valores;
+- identificar datas;
+- identificar estabelecimentos;
+- sugerir parcelas ou categorias.
+
+A IA não deve:
+
+- calcular saldo;
+- decidir liquidez;
+- determinar pagamento de fatura;
+- executar rollover;
+- decidir regras do Analytics;
+- criar diretamente efeitos financeiros sem validação.
+
+Isso mantém o único componente probabilístico isolado das regras determinísticas.
