@@ -29,20 +29,19 @@ Detalhamento completo na [issue #5](https://github.com/AppFinanceiro-GECS/doc-bi
 | Julio Dourado e Brenno da Silva Oliveira | Elaborou a viabilidade técnica do iOS (custos, ambiente de build, App Review, TestFlight) | [viabilidade-tecnica-ios.md](entregaveis/viabilidade-tecnica-ios.md) |
 | Julio Dourado e Brenno da Silva Oliveira | Registrou a ata da reunião de alinhamento da Sprint 1 | [reuniao-alinhamento-sprint1.png](../assets/reuniao-alinhamento-sprint1.png) |
 
-### Grupo 2 — [completar com o nome da frente]
+### Grupo 2 — Backend, dados e IA
 
 Detalhamento completo na [issue #4](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/4).
 
 | Nome do Trio/Dupla | Atividade | Evidência |
 | --- | --- | --- |
-| [nome do integrante ou da dupla] | [atividade concluída] | [link para o documento, PR, print ou comentário que comprova a entrega] |
-| [nome do integrante ou da dupla] | [atividade concluída] | [link para o documento, PR, print ou comentário que comprova a entrega] |
-
-> Preencher com as entregas reais do Grupo 2 e remover esta nota.
+| André Ricardo Meyer, Giovanni Dornelas | Diagnóstico do backend e da camada de dados e proposta inicial de arquitetura | [diagnostico_backend_dados_e_arquitetura.md](entregaveis/diagnostico_backend_dados_e_arquitetura.md) |
+| André Ricardo Meyer, Giovanni Dornelas | Análise de uso e custo do Gemini | [analise-uso-custo-gemini-2.md](entregaveis/analise-uso-custo-gemini-2.md) |
+| André Ricardo Meyer, Giovanni Dornelas | Soluções propostas pelo cliente em relação ao backend + sugestões nossas | [proposta-trabalho-backend.md](entregaveis/proposta-trabalho-backend.md) |
 
 ### Grupo 5 — FrontEnd UI/UX
 
-Detalhamento completo na [issue #4](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/3).
+Detalhamento completo na [issue #3](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/3).
 
 | Nome do Trio/Dupla | Atividade | Evidência |
 | --- | --- | --- |
