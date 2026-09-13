@@ -39,6 +39,16 @@ Detalhamento completo na [issue #4](https://github.com/AppFinanceiro-GECS/doc-bi
 | André Ricardo Meyer, Giovanni Dornelas | Análise de uso e custo do Gemini | [analise-uso-custo-gemini-2.md](entregaveis/analise-uso-custo-gemini-2.md) |
 | André Ricardo Meyer, Giovanni Dornelas | Soluções propostas pelo cliente em relação ao backend + sugestões nossas | [proposta-trabalho-backend.md](entregaveis/proposta-trabalho-backend.md) |
 
+### Grupo 4 — Produto, requisitos e frontend
+
+Detalhamento completo na [issue #NN](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/6).
+
+| Nome do Trio/Dupla | Atividade | Evidência |
+| --- | --- | --- |
+| Rafael| Elaborou a proposta de MVP: resumo do produto, inventário dos requisitos atuais, requisitos novos, partes de entrega e critérios de aceite | [mvp-biveto.md](entregaveis/mvp-biveto.md) |
+| Rafael| Validou o escopo com o cliente e revisou o documento conforme a devolutiva recebida (extração por IA, tolerância de parcelas, agendador e notificações) | [mvp-biveto.md](entregaveis/mvp-biveto.md) |
+| Rafael| Consolidou o MVP com os entregáveis dos Grupos 1, 2 e 5, registrando as divergências entre os documentos e as decisões em aberto | [mvp-biveto.md](entregaveis/mvp-biveto.md) |
+
 ### Grupo 5 — FrontEnd UI/UX
 
 Detalhamento completo na [issue #3](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/3).
