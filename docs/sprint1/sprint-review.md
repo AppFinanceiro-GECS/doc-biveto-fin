@@ -41,7 +41,7 @@ Detalhamento completo na [issue #4](https://github.com/AppFinanceiro-GECS/doc-bi
 
 ### Grupo 4 — Produto, requisitos e frontend
 
-Detalhamento completo na [issue #NN](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/6).
+Detalhamento completo na [issue #6](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/6).
 
 | Nome do Trio/Dupla | Atividade | Evidência |
 | --- | --- | --- |
