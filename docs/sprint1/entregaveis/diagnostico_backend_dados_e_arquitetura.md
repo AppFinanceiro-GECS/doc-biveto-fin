@@ -1,27 +1,35 @@
 # Diagnóstico Técnico e Proposta Inicial de Arquitetura — Biveto-fin
 
+**Sprint:** Sprint 1 — Reformulação e planejamento  
+**Escopo:** Diagnóstico do backend e dos dados e proposta inicial de arquitetura para o MVP  
+
+---
+
 ## 1. Objetivo e escopo
 
-Este documento apresenta o diagnóstico técnico do backend e da camada de dados atualmente implementados no Biveto-fin e propõe uma arquitetura inicial para a evolução da aplicação em direção ao MVP definido na Sprint 1.
+Este documento apresenta o diagnóstico técnico do backend e da camada de dados atualmente implementados no Biveto-fin e propõe uma arquitetura inicial para a evolução da aplicação em direção ao MVP.
 
-A análise considera três fontes:
+A análise considera quatro fontes, em ordem de autoridade:
 
-1. o **código-fonte atual**, utilizado como referência do estado técnico efetivamente implementado;
-2. as **regras de negócio consolidadas pelo Grupo 3**, utilizadas como referência para o comportamento esperado dos fluxos financeiros;
-3. o **escopo priorizado pelo Grupo 4**, utilizado para determinar quais funcionalidades pertencem ao lançamento e quais permanecem para etapas posteriores.
+1. **código, testes e branch `main`**, que representam o comportamento efetivamente versionado;
+2. **ADRs e documentação oficial do repositório**, utilizados como registro das decisões técnicas existentes;
+3. **validação do cliente**, utilizada para confirmar prioridades, corrigir interpretações e direcionar o lançamento;
+4. **propostas produzidas pelos grupos**, utilizadas como sugestões de evolução enquanto ainda não estiverem incorporadas à `main`.
 
-A proposta não busca reescrever a aplicação nem introduzir uma arquitetura excessivamente sofisticada.
+Essa distinção é importante porque algumas regras apresentadas durante a Sprint 1 ainda não estão versionadas no repositório. Uma proposta de regra ou alteração somente passa a representar a baseline oficial do projeto após ser integrada por pull request.
+
+A proposta arquitetural não busca reescrever o Biveto-fin.
 
 O objetivo é:
 
-- preservar componentes tecnicamente adequados;
-- corrigir divergências entre código e regras aprovadas;
-- reduzir a superfície funcional;
-- melhorar a confiabilidade do processamento de documentos;
-- manter a inteligência artificial isolada das regras financeiras;
-- preservar rastreabilidade suficiente para diagnosticar falhas.
+- preservar o que já funciona;
+- reduzir a superfície do lançamento;
+- corrigir problemas que realmente bloqueiam ou aumentam o risco da publicação;
+- aumentar cobertura de testes e observabilidade;
+- manter a IA isolada das regras financeiras;
+- permitir evolução incremental e rastreável.
 
-O princípio central do MVP é manter apenas aquilo que sustenta diretamente a principal proposta de valor do Biveto: receber uma fatura, interpretar seus dados e organizá-los financeiramente com pouca intervenção manual.
+O princípio de produto permanece válido: o núcleo do Biveto está na experiência em que **a fatura chega e o sistema consegue interpretá-la e organizá-la para o usuário**. O próprio cliente confirmou esse direcionamento como base adequada para o recorte do MVP.
 
 ---
 
@@ -29,7 +37,7 @@ O princípio central do MVP é manter apenas aquilo que sustenta diretamente a p
 
 O backend do Biveto-fin é implementado em Python utilizando FastAPI e segue uma arquitetura de **monólito modular**.
 
-A versão analisada possui aproximadamente:
+Na versão analisada foram identificados aproximadamente:
 
 | Métrica | Valor observado |
 |---|---:|
@@ -53,13 +61,17 @@ As principais tecnologias encontradas são:
 | Autenticação | JWT |
 | Jobs agendados | APScheduler |
 | Rate limiting | slowapi |
-| IA | Google Gemini e providers alternativos |
+| IA | Google Gemini e provider alternativo |
 | Testes | pytest |
 | Empacotamento | Docker |
 
-O sistema atual possui funcionalidades que ultrapassam o escopo necessário ao lançamento, como assistente de IA, gamificação, lista de mercado, dívidas, notificações, automações e outras expansões. O próprio documento do Grupo 4 identifica esse crescimento como uma das razões para reduzir o produto ao fluxo principal.
+O produto possui uma superfície funcional significativamente maior do que o fluxo necessário para o lançamento, incluindo módulos como gamificação, mercado, chat de IA, dívidas, automações e outras funcionalidades.
 
-A conclusão inicial é que o principal problema não está na tecnologia utilizada, mas na **quantidade de responsabilidades acumuladas ao redor do núcleo financeiro**.
+Entretanto, a validação do cliente mostrou que **complexidade existente não deve ser confundida com funcionalidade quebrada**. Alguns módulos que haviam sido classificados para alteração já possuem comportamento maduro e decisões técnicas registradas.
+
+A estratégia passa, portanto, a ser:
+
+> **reduzir o que é exposto no lançamento sem alterar desnecessariamente o que já funciona.**
 
 ---
 
@@ -67,7 +79,7 @@ A conclusão inicial é que o principal problema não está na tecnologia utiliz
 
 ### 3.1 Estrutura e organização
 
-O backend é dividido em módulos de domínio dentro de:
+O backend está organizado por domínios em:
 
 ```text
 backend/app/modules/
@@ -106,7 +118,7 @@ review
 transactions
 ```
 
-O fluxo predominante das requisições é:
+O fluxo predominante é:
 
 ```text
 Request HTTP
@@ -127,83 +139,69 @@ SQLAlchemy / AsyncSession
 Banco de dados
 ```
 
-A aplicação possui uma única instância FastAPI com vários módulos internos, caracterizando um monólito modular.
+Essa arquitetura de monólito modular continua adequada.
 
-Essa arquitetura continua adequada ao MVP.
-
-Não foi identificada necessidade de migração para microserviços ou de criação imediata de uma nova camada de `Repository`.
+Não se recomenda introduzir microserviços ou uma nova camada `Repository` apenas por padronização arquitetural.
 
 ### 3.2 Pontos positivos
 
-Foram identificados os seguintes aspectos positivos:
+O backend já possui uma base madura em vários aspectos:
 
-- organização por domínio;
-- utilização de FastAPI;
-- validação estruturada com Pydantic;
+- separação por domínio;
+- API estruturada em FastAPI;
+- validação por Pydantic;
 - acesso assíncrono ao banco;
-- autenticação já implementada;
-- migrations versionadas;
-- suporte existente a PostgreSQL;
-- empacotamento Docker;
-- pipeline de integração contínua;
-- serviços específicos para processamento de documentos e IA;
-- possibilidade de reaproveitamento significativo da implementação atual.
+- autenticação e refresh de sessão;
+- migrations com Alembic;
+- suporte a PostgreSQL;
+- Docker;
+- integração contínua;
+- processamento especializado de documentos;
+- detecção de documentos duplicados;
+- pipeline de extração de faturas desenvolvido e calibrado ao longo do projeto.
 
-Um aspecto especialmente importante é que o fluxo de documentos já possui elementos úteis para confiabilidade, como:
-
-- identificação do documento;
-- hash;
-- detecção de duplicidade;
-- status de processamento;
-- armazenamento de resultados de extração.
-
-Esses mecanismos podem ser fortalecidos sem introduzir nova infraestrutura.
+A validação do cliente mostrou que a extração de documentos é uma das partes mais trabalhadas do sistema, contendo classificador, prompts por banco, validações, tratamento de diferentes layouts e provider alternativo. Por isso, mudanças nessa área devem ser orientadas por regressão e dados, e não apenas por simplificação.
 
 ### 3.3 Pontos de atenção
 
-O principal ponto de atenção é a complexidade funcional.
+Os principais riscos técnicos observados passam a ser:
 
-A Parte 1 definida para o lançamento concentra-se em:
+- baixa cobertura automatizada dos fluxos financeiros centrais;
+- identificadores de modelos de IA espalhados pelo código;
+- necessidade de migrar para identificadores de modelos vigentes sem regredir a extração;
+- uso amplo de `print()` no backend em vez de logging estruturado;
+- migração de dados executada durante o boot da aplicação;
+- armazenamento de documentos no filesystem local;
+- processamento em background dependente do processo FastAPI;
+- configuração de segurança que precisa ser endurecida para produção.
 
-- autenticação;
-- transação manual;
-- upload e extração de fatura;
-- parcelamento;
-- cálculo e pagamento de fatura;
-- resumo mensal;
-- publicação.
+O scheduler não deve mais ser tratado como funcionalidade experimental.
 
-Funcionalidades dependentes de scheduler, como recorrentes, notificações e automações, não devem compor o caminho crítico da primeira publicação.
-
-Também existem pontos técnicos que precisam ser adequados:
-
-- armazenamento de documentos no disco local;
-- algumas regras financeiras antigas ainda presentes;
-- configuração de IA parcialmente acoplada ao código;
-- rastreabilidade operacional que pode ser melhorada;
-- baixa cobertura dos fluxos financeiros mais críticos.
+A validação do cliente confirmou que o APScheduler sobe junto com a API, registra seus jobs e expõe seu estado no `/health`. A limitação relevante é outra: sua arquitetura atual é adequada a uma única réplica da API.
 
 ### 3.4 Conclusão do backend
 
-Não se recomenda substituir o FastAPI nem transformar o sistema em uma arquitetura distribuída.
-
-A evolução recomendada é:
+A evolução recomendada passa a ser:
 
 ```text
 Monólito modular atual
         │
         ▼
-Redução da superfície funcional
+Proteger comportamento existente com testes
         │
         ▼
-Correção das regras divergentes
+Corrigir bloqueadores técnicos do lançamento
         │
         ▼
-Fortalecimento do fluxo de documentos/IA
+Reduzir módulos expostos
         │
         ▼
-Monólito modular focado no MVP
+Publicar MVP
 ```
+
+A prioridade não é refatorar os maiores arquivos antes do lançamento.
+
+A prioridade é **caracterizar e proteger por testes o comportamento atual antes de modificá-lo**.
 
 ---
 
@@ -211,7 +209,7 @@ Monólito modular focado no MVP
 
 ### 4.1 Persistência
 
-A aplicação utiliza SQLAlchemy 2 de forma assíncrona e suporta:
+A aplicação utiliza SQLAlchemy 2 assíncrono e suporta:
 
 ```text
 SQLite
@@ -219,11 +217,11 @@ e
 PostgreSQL
 ```
 
-SQLite pode continuar sendo utilizado para desenvolvimento local.
+SQLite permanece adequado ao desenvolvimento e aos testes.
 
 Para produção recomenda-se PostgreSQL.
 
-O domínio possui forte relacionamento entre:
+O domínio é fortemente relacional:
 
 ```text
 Usuário
@@ -233,20 +231,15 @@ Usuário
    │
    ├── Cartões
    │     └── Faturas
-   │           └── Transações
    │
    └── Documentos
 ```
 
-Por isso, o banco relacional atual é adequado.
-
-Não foi identificada necessidade de banco NoSQL.
+Não foi identificada necessidade de introduzir banco NoSQL.
 
 ### 4.2 Modelo de dados
 
-A versão analisada possui 52 tabelas SQLAlchemy.
-
-As principais entidades relacionadas ao lançamento são:
+As entidades centrais incluem:
 
 ```text
 users
@@ -270,33 +263,55 @@ documents
 document_extractions
 ```
 
-As demais entidades acompanham funcionalidades pós-entrega ou de backlog.
+As demais tabelas atendem funcionalidades complementares ou futuras.
 
-O Grupo 4 adotou como princípio que retirar algo do MVP significa **adiar**, e não necessariamente apagar imediatamente código ou dados existentes.
+Funcionalidades ocultadas do MVP não devem ter suas entidades removidas apenas para simplificar numericamente o banco.
 
-Portanto, não se recomenda realizar grandes migrations destrutivas apenas para reduzir o número de tabelas.
+Antes de remover código ou schema, é necessário identificar dependências. A validação do cliente mostrou, por exemplo, que `benefit_cards` é utilizado pelo fluxo de recibos e não representa simples duplicação de fontes de renda.
 
 ### 4.3 Migrations
 
-O projeto utiliza Alembic e possui histórico versionado de alterações de schema.
+Alembic deve continuar sendo a fonte oficial de evolução de schema e dados.
 
-Esse mecanismo deve ser preservado.
+Foi identificada uma dívida relevante: uma migração de dados de cartões é disparada após o startup da API.
 
-Toda alteração estrutural necessária para implementar as novas regras do MVP deve continuar sendo registrada através de migration.
+Esse comportamento deve ser substituído por uma migration Alembic idempotente executada de forma explícita durante o processo de implantação.
+
+O fluxo recomendado passa a ser:
+
+```text
+Deploy
+  │
+  ▼
+Backup
+  │
+  ▼
+alembic upgrade head
+  │
+  ▼
+Startup da aplicação
+```
+
+e não:
+
+```text
+Startup
+  │
+  ▼
+migração silenciosa em background
+```
 
 ### 4.4 Armazenamento de documentos e rastreabilidade
 
-Atualmente os documentos são armazenados localmente em:
+Atualmente os arquivos são armazenados em:
 
 ```text
 ./uploads
 ```
 
-enquanto o banco guarda metadados e informações sobre o processamento.
+Para desenvolvimento isso continua aceitável.
 
-Para desenvolvimento, essa solução continua aceitável.
-
-Para produção, recomenda-se:
+Para produção recomenda-se abstrair o armazenamento:
 
 ```text
 DocumentService
@@ -311,65 +326,53 @@ StorageService
              └── produção
 ```
 
-Além da mudança de armazenamento, recomenda-se preservar uma cadeia de rastreabilidade mínima:
+A rastreabilidade mínima deve permitir seguir:
 
 ```text
-Documento recebido
-      │
-      ▼
-Extração realizada
-      │
-      ▼
-Resultado apresentado
-      │
-      ▼
-Correção/confirmação do usuário
-      │
-      ▼
-Transação criada
+Documento
+    │
+    ▼
+Extração
+    │
+    ▼
+Revisão
+    │
+    ▼
+Transação
 ```
 
-O objetivo não é implementar event sourcing.
-
-O objetivo é conseguir responder, quando necessário:
-
-> **O que aconteceu com este documento e quais transações foram geradas a partir dele?**
-
-Idealmente, devem permanecer rastreáveis:
+Devem permanecer identificáveis:
 
 - documento original;
 - hash;
 - status;
-- provider/modelo utilizado;
+- modelo/provider utilizado;
 - resultado extraído;
 - confirmação realizada;
 - transações relacionadas.
 
+Não se propõe event sourcing.
+
+O objetivo é conseguir diagnosticar uma falha financeira ou de extração sem depender exclusivamente de logs brutos.
+
 ### 4.5 Conclusão dos dados
 
-A estrutura de persistência pode ser mantida:
+A estrutura geral permanece adequada:
 
 ```text
-Desenvolvimento
-→ SQLite
-
-Produção
-→ PostgreSQL
-
-ORM
-→ SQLAlchemy
-
-Migrations
-→ Alembic
-
-Documentos locais
-→ desenvolvimento
-
-Object Storage
-→ produção
+Desenvolvimento → SQLite
+Produção        → PostgreSQL
+ORM             → SQLAlchemy
+Migrations      → Alembic
+Arquivos locais → desenvolvimento
+Object Storage  → produção
 ```
 
-A principal evolução proposta é reforçar a **rastreabilidade entre documento, extração e efeito financeiro**.
+As principais evoluções são:
+
+- mover migrações de dados para Alembic;
+- preservar rastreabilidade do fluxo documental;
+- evitar migrations destrutivas sem análise de dependência.
 
 ---
 
@@ -377,21 +380,10 @@ A principal evolução proposta é reforçar a **rastreabilidade entre documento
 
 ### 5.1 Núcleo do lançamento
 
-A Parte 1 definida pelo Grupo 4 contém:
-
-- autenticação e convite;
-- transação manual;
-- upload e extração;
-- parcelamento;
-- cálculo e pagamento de fatura;
-- resumo mensal;
-- publicação.
-
-Isso concentra o lançamento principalmente nos módulos:
+Após o retorno do cliente, o núcleo de lançamento passa a considerar:
 
 ```text
 auth
-admin
 accounts
 transactions
 categories
@@ -399,178 +391,200 @@ documents
 installments
 credit_cards
 analytics
+household
+notifications
 ```
+
+Além da infraestrutura de suporte necessária.
+
+`household` passa a ser considerado Parte 1 porque já funciona, foi solicitado pelo cliente e não exige uma nova frente de desenvolvimento relevante.
+
+`notifications` também deixa de ser classificado simplesmente como backlog. O agendador e a geração das notificações já funcionam; o principal débito é a entrega efetiva, especialmente por email.
 
 ### 5.2 Módulos pós-entrega
 
-Foram definidos para etapa posterior:
+Permanecem adequados para uma etapa posterior:
 
 ```text
 budgets
-household
-recurring
 goals
+recurring
+automations
 ```
 
-Esses módulos podem permanecer no repositório sem se tornar dependências do lançamento.
+Recorrentes continuam podendo ser adiados, mas não porque o scheduler esteja “em validação”.
 
-### 5.3 Módulos fora do lançamento
+A justificativa passa a ser validar por testes e homologação que o job gera corretamente as recorrências ao longo de um ciclo real de uso.
 
-Funcionalidades como:
+### 5.3 Módulos fora da superfície do lançamento
+
+Podem permanecer ocultados:
 
 ```text
 debts
 chat
-notifications
-automations
 grocery
 gamification
-benefit_cards
-receipts
 calendar
-mcp
+benefit_cards
+simulators
 ```
 
-não pertencem ao núcleo inicial ou foram explicitamente classificadas como backlog.
+com algumas ressalvas:
+
+- `benefit_cards` deve permanecer preservado devido às dependências existentes;
+- `receipts` pode ter sua tela ocultada, mas seu backend permanece relevante caso o upload de cupom faça parte do MVP;
+- `mcp` não é ferramenta interna: é uma integração opcional destinada ao usuário e apenas fica fora do MVP de loja;
+- `calendar` fica fora por prioridade de produto, não por ausência de service.
 
 ### 5.4 Matriz de evolução
 
-| Módulo | Fase | Situação | Ação |
-|---|---|---|---|
-| `auth` | Lançamento | Base adequada | **Manter** |
-| `admin` | Lançamento/suporte | Convites/licenças | **Manter escopo mínimo** |
-| `accounts` | Lançamento | Liquidez precisa adequação | **Alterar** |
-| `transactions` | Lançamento | Núcleo financeiro | **Manter e adequar regras** |
-| `categories` | Lançamento/suporte | Utilizado por transações | **Manter** |
-| `documents` | Lançamento | IA, storage e rastreabilidade | **Alterar** |
-| `installments` | Lançamento | Possui tolerâncias antigas | **Alterar** |
-| `credit_cards` | Lançamento | Novas regras de pagamento | **Alterar** |
-| `analytics` | Lançamento | Isolamento de pagamento | **Alterar** |
-| `household` | Pós-entrega | Funcionalidade válida | **Preservar** |
-| `budgets` | Pós-entrega | Escopo simplificado | **Preservar** |
-| `goals` | Pós-entrega | Meta simplificada | **Preservar** |
-| `recurring` | Pós-entrega | Depende de scheduler | **Adiar** |
-| Demais módulos de backlog | Futuro | Fora do lançamento | **Não expor** |
+| Módulo | Fase | Ação recomendada |
+|---|---|---|
+| `auth` | Lançamento | **Manter e testar** |
+| `accounts` | Lançamento | **Manter** |
+| `transactions` | Lançamento | **Manter e criar testes de caracterização** |
+| `categories` | Lançamento | **Manter** |
+| `documents` | Lançamento | **Preservar pipeline e migrar configuração de modelos** |
+| `installments` | Lançamento | **Preservar comportamento atual** |
+| `credit_cards` | Lançamento | **Manter e aumentar cobertura de testes** |
+| `analytics` | Lançamento | **Manter e validar por testes** |
+| `household` | Lançamento | **Manter** |
+| `notifications` | Lançamento | **Completar entrega por email** |
+| `recurring` | Pós-entrega | **Validar funcionalmente antes de expor** |
+| `automations` | Pós-entrega | **Ocultar** |
+| `receipts` | Suporte/backlog | **Preservar backend; avaliar UI** |
+| `benefit_cards` | Backlog | **Ocultar sem remover dependências** |
+| `grocery` | Backlog | **Ocultar e preservar** |
+| `gamification` | Backlog | **Ocultar** |
+| `calendar` | Backlog | **Ocultar por prioridade** |
+| `mcp` | Fora do MVP mobile | **Preservar integração** |
+
+Para tornar a estratégia “cortar é adiar” operacional, recomenda-se controlar módulos opcionais do frontend por configuração, em vez de apagar rotas e telas.
+
+Conceitualmente:
+
+```text
+VITE_ENABLED_MODULES
+```
+
+pode controlar navegação e registro das rotas opcionais, permitindo alterar o recorte do produto sem recuperar código do histórico.
 
 ---
 
-## 6. Divergências entre o código atual e as regras do MVP
+## 6. Divergências entre o código atual e as propostas da Sprint
 
-### 6.1 Match exato
+### 6.1 Matching de parcelas
 
-A regra consolidada pelo Grupo 3 remove a antiga tolerância utilizada na conciliação.
+A proposta da Sprint sugeria remover a tolerância e exigir correspondência exata de valor e data.
 
-A consolidação automática passa a exigir:
+Após validação do cliente, essa alteração **não é recomendada para o MVP**.
 
-```text
-valor exato
-+
-data exata
-```
+O código atual possui mecanismos diferentes para:
 
-Divergências devem exigir revisão manual.
+- relacionar uma parcela nova com uma série existente;
+- detectar uma transação duplicada.
 
-A implementação atual ainda possui regras de tolerância no fluxo de parcelas.
+O fuzzy match de parcelas possui tolerância própria e já é protegido por teste automatizado. Removê-lo sem evidência de erros reais pode quebrar um comportamento já calibrado.
 
-Portanto:
+A decisão passa a ser:
 
-```text
-installments
-→ manter funcionalidade
-→ alterar implementação
-```
+> **preservar a lógica atual de matching e somente alterá-la mediante caso real reproduzível e teste que demonstre o problema.**
 
-### 6.2 Liquidez no pagamento de fatura
+A revisão manual de itens extraídos continua sendo mantida.
 
-REQ-PAG-01 restringe o pagamento de fatura a contas de liquidez.
+### 6.2 Regras de fatura
 
-O conceito precisa ser formalizado no código.
+As propostas `REQ-PAG-01`, `REQ-PAG-02` e `REQ-PAG-03` não devem ser tratadas como funcionalidades totalmente novas.
 
-A validação não deve ser simplesmente:
+A validação do cliente identificou comportamentos equivalentes já implementados e documentados sob a nomenclatura atual do repositório. O principal risco é a ausência de cobertura automatizada para esses fluxos críticos.
+
+A prioridade passa a ser criar testes para:
 
 ```text
-não é cartão de crédito?
+compra após fechamento
+pagamento com origem inválida
+pagamento parcial
+pagamento total
+status da fatura
+Analytics sem dupla contagem
 ```
 
-Ela deve responder:
+Antes de alterar essas regras, o comportamento existente deve ser protegido.
+
+### 6.3 Gemini e configuração dos modelos
+
+A extração não deve ser reestruturada apenas para reduzir custo.
+
+O projeto já havia escolhido Gemini Flash após benchmark.
+
+O problema técnico relevante identificado é outro: os nomes dos modelos estão espalhados por diferentes pontos da aplicação e a configuração precisa suportar migração de versões sem alteração em vários módulos.
+
+Recomenda-se centralizar:
 
 ```text
-esta conta é uma origem de liquidez permitida?
+vision_model
+classifier_model
+chat_model
 ```
 
-### 6.3 Pagamento parcial
+e garantir que nenhum service conheça diretamente um identificador fixo de modelo.
 
-REQ-PAG-02 determina:
+A escolha entre modelos deve seguir:
 
 ```text
-Pagamento menor que total
-        │
-        ▼
-status PARTIAL
-        │
-        ▼
-saldo remanescente
-        │
-        ▼
-fatura seguinte
+Modelo vigente
+      │
+      ▼
+Teste com fixtures sintéticas
+      │
+      ▼
+Medição de acerto
+      │
+      ├── latência
+      └── custo
+      │
+      ▼
+Decisão
 ```
 
-A estrutura atual possui parte do suporte necessário, mas o fluxo completo deve ser validado e completado.
+Não se deve assumir que extração é a funcionalidade mais cara sem medição. O cliente destacou que o projeto ainda não possui contabilização de custo por funcionalidade.
 
-### 6.4 Analytics
+### 6.4 IA e barreira determinística
 
-REQ-PAG-03 determina que a transação de pagamento da fatura não seja contabilizada novamente como despesa.
-
-Recomenda-se que esse tipo de transação possua identificação explícita de origem, evitando depender apenas da reconstrução através da entidade de fatura.
-
-### 6.5 IA e barreira determinística
-
-O Grupo 4 mantém a extração por IA no MVP, mas exige revisão do usuário antes da criação das transações.
-
-Esse comportamento deve ser formalizado arquiteturalmente através de uma **barreira determinística** entre a IA e o domínio financeiro:
+Continua válida a separação conceitual entre processamento probabilístico e domínio financeiro:
 
 ```text
-           ÁREA PROBABILÍSTICA
+          IA / extração
+               │
+               ▼
+        Dados extraídos
 
-               Serviço de IA
-                    │
-                    ▼
-             Dados extraídos
+══════════════════════════════
+ Barreira determinística
+══════════════════════════════
 
-════════════════════════════════════
-        BARREIRA DETERMINÍSTICA
-════════════════════════════════════
+      validação de schema
+      validação dos dados
+      detecção de duplicidade
+      confirmação do usuário
 
-             validação de schema
-             validação de valores
-             detecção de duplicidade
-             match exato
-             revisão do usuário
-
-                    │
-                    ▼
-
-           DOMÍNIO FINANCEIRO
+               │
+               ▼
+       Domínio financeiro
 ```
 
-A IA pode:
+A expressão **barreira determinística** representa um princípio arquitetural proposto neste documento, e não uma nova tecnologia ou camada obrigatória.
 
-- interpretar documentos;
-- identificar valores;
-- identificar datas;
-- identificar estabelecimentos;
-- sugerir parcelas ou categorias.
+A IA pode interpretar e sugerir.
 
-A IA não deve:
+Ela não deve decidir diretamente:
 
-- calcular saldo;
-- decidir liquidez;
-- determinar pagamento de fatura;
-- executar rollover;
-- decidir regras do Analytics;
-- criar diretamente efeitos financeiros sem validação.
-
-Isso mantém o único componente probabilístico isolado das regras determinísticas.
+- saldo;
+- estado financeiro;
+- pagamento;
+- regras de fatura;
+- efeitos contábeis.
 
 ---
 
@@ -578,76 +592,70 @@ Isso mantém o único componente probabilístico isolado das regras determiníst
 
 ### 7.1 Visão geral
 
-A arquitetura proposta continua simples:
+A arquitetura proposta permanece simples:
 
 ```text
-                         Usuário
-                            │
-                            ▼
-                     React / PWA
-                            │
-                          HTTPS
-                            │
-                            ▼
-                ┌──────────────────────┐
-                │         VPS          │
-                │                      │
-                │       FastAPI        │
-                │  Monólito Modular    │
-                │                      │
-                │ Auth                 │
-                │ Accounts             │
-                │ Transactions         │
-                │ Documents            │
-                │ Installments         │
-                │ Cards / Invoices     │
-                │ Analytics            │
-                └──────────┬───────────┘
+                        Usuário
                            │
-              ┌────────────┼────────────┐
-              │            │            │
-              ▼            ▼            ▼
-         PostgreSQL   Object Storage   IA
+                           ▼
+                    React / PWA
+                           │
+                         HTTPS
+                           │
+                           ▼
+               ┌──────────────────────┐
+               │       FastAPI        │
+               │   Monólito Modular   │
+               │                      │
+               │ Auth                 │
+               │ Accounts             │
+               │ Transactions         │
+               │ Documents            │
+               │ Installments         │
+               │ Cards / Invoices     │
+               │ Analytics            │
+               │ Household            │
+               │ Notifications        │
+               └──────────┬───────────┘
+                          │
+             ┌────────────┼────────────┐
+             │            │            │
+             ▼            ▼            ▼
+        PostgreSQL   Object Storage   IA
 ```
 
-A melhoria proposta não adiciona novos serviços obrigatórios.
-
-Ela adiciona principalmente **regras claras de passagem entre os componentes**.
+Nenhuma nova infraestrutura distribuída é necessária para implementar essa proposta.
 
 ### 7.2 Entrada confiável
 
-Toda entrada deve passar por contratos e validações antes de produzir efeitos.
-
-No caso dos documentos:
+Para documentos:
 
 ```text
 Upload
-   │
-   ▼
+  │
+  ▼
 Autenticação
-   │
-   ▼
-Validação do arquivo
-   │
-   ▼
+  │
+  ▼
+Validação
+  │
+  ▼
 Hash / duplicidade
-   │
-   ▼
-Persistência do documento
-   │
-   ▼
-Processamento
+  │
+  ▼
+Persistência
+  │
+  ▼
+Extração
 ```
 
-O princípio é:
+O princípio permanece:
 
-> **Persistir e validar antes de processar.**
+> **validar, deduplicar e persistir antes de executar processamento externo.**
 
-Isso evita gastar processamento de IA com arquivos inválidos ou duplicados e melhora a rastreabilidade em caso de falha.
+### 7.3 Domínio financeiro
 
-### 7.3 Domínio financeiro determinístico
-
-O núcleo financeiro permanece isolado da IA:
+O núcleo:
 
 ```text
 Accounts
@@ -657,57 +665,40 @@ Installments
 Analytics
 ```
 
-Esses componentes devem executar regras determinísticas e testáveis.
+permanece determinístico e testável.
 
-A mesma entrada financeira deve produzir sempre o mesmo resultado, independentemente do modelo de IA configurado.
+Antes de modificar suas regras, devem ser criados testes que descrevam o comportamento existente.
 
-### 7.4 Processamento de documentos e IA
+### 7.4 Documentos e IA
 
-O fluxo recomendado é:
+O pipeline existente deve ser preservado:
 
 ```text
 Documento
-    │
-    ▼
-Validação / deduplicação
-    │
-    ▼
-Persistência
-    │
-    ▼
-AI/OCR Service
-    │
-    ▼
-ExtractionResult
-    │
-    ▼
-Barreira determinística
-    │
-    ▼
-Revisão do usuário
-    │
-    ▼
+   │
+   ▼
+Classificação
+   │
+   ▼
+Extração / OCR
+   │
+   ▼
+Validação
+   │
+   ▼
+Revisão
+   │
+   ▼
 Domínio financeiro
 ```
 
-O provider e modelo devem ser configuráveis.
+A principal mudança arquitetural necessária é **centralizar a configuração dos modelos**, não substituir o pipeline existente.
 
-A inteligência artificial permanece isolada atrás de um service próprio.
+Faturas utilizadas em testes devem ser sintéticas, nunca documentos financeiros reais.
 
-### 7.5 Processamento assíncrono
+### 7.5 Processamento e scheduler
 
-O processamento de IA pode continuar utilizando o mecanismo simples já existente no primeiro momento.
-
-Não se recomenda introduzir agora:
-
-```text
-Redis
-Celery
-RabbitMQ
-workers independentes
-```
-
-O MVP pode operar com:
+O primeiro lançamento pode continuar utilizando:
 
 ```text
 FastAPI
@@ -717,55 +708,30 @@ BackgroundTasks
 status persistido
 ```
 
-Desde que o processamento tenha status identificável, por exemplo:
+para processamento de documentos.
 
-```text
-PENDING
-PROCESSING
-REVIEW_REQUIRED
-COMPLETED
-FAILED
-```
+Não é necessário introduzir Redis/Celery agora.
 
-Caso o volume futuro justifique, o processamento poderá evoluir para:
+O APScheduler já faz parte da aplicação e pode continuar sendo utilizado em uma única instância.
 
-```text
-API
-  ↓
-Fila
-  ↓
-Worker
-  ↓
-IA
-```
+Recorrentes e automações podem ser ativados posteriormente sem mudança de arquitetura.
 
-sem alterar o domínio financeiro.
+### 7.6 Observabilidade e operação
 
-### 7.6 Observabilidade mínima
+A observabilidade mínima deixa de ser apenas recomendação futura.
 
-Não se recomenda construir um painel operacional completo neste momento.
+Antes da publicação, recomenda-se substituir o uso de `print()` por logging estruturado e registrar adequadamente:
 
-Porém, o sistema deve registrar informações suficientes para diagnóstico:
+- nível;
+- timestamp;
+- contexto da operação;
+- erro;
+- duração;
+- status do processamento.
 
-- documento;
-- status;
-- horário de início;
-- horário de fim;
-- provider/modelo;
-- erro, quando houver;
-- duração do processamento.
+A validação do cliente identificou logging como uma das dívidas de sustentação diretamente relacionadas à publicação.
 
-Também devem existir:
-
-```text
-logs estruturados
-+
-health check
-+
-registro de erros
-```
-
-Métricas e tracing distribuído podem ser adicionados posteriormente, conforme crescimento da aplicação.
+Health check e informações sobre scheduler já existentes devem ser preservados.
 
 ---
 
@@ -773,32 +739,29 @@ Métricas e tracing distribuído podem ser adicionados posteriormente, conforme 
 
 | Área | Decisão |
 |---|---|
+| Fonte de verdade | **`main` + testes + ADRs antes de propostas ainda não integradas** |
 | Arquitetura | **Manter monólito modular** |
 | Backend | **Manter FastAPI** |
 | ORM | **Manter SQLAlchemy Async** |
-| Migrations | **Manter Alembic** |
-| Desenvolvimento | **SQLite permanece disponível** |
+| Migrations | **Manter Alembic e retirar migração do boot** |
+| Desenvolvimento | **Manter SQLite** |
 | Produção | **Utilizar PostgreSQL** |
 | Documentos | **Object storage em produção** |
-| Ingestão | **Validar, deduplicar e persistir antes da IA** |
-| Rastreabilidade | **Relacionar documento, extração e transação** |
-| IA | **Isolar atrás de service próprio** |
-| Regras financeiras | **100% determinísticas no backend** |
-| Pós-IA | **Criar barreira determinística antes de efeitos financeiros** |
+| Pipeline de extração | **Preservar comportamento calibrado** |
+| Gemini | **Centralizar identificação dos modelos e validar por regressão** |
+| Matching de parcelas | **Preservar fuzzy match até existir evidência para alteração** |
+| IA | **Isolar do domínio financeiro** |
+| Testes | **Caracterizar regras críticas antes de refatorar** |
+| Logging | **Adotar logging estruturado antes da publicação** |
+| Scheduler | **Considerar operacional em uma única réplica** |
 | Processamento assíncrono | **Manter solução simples inicialmente** |
-| Fila distribuída | **Adiar até existir necessidade real** |
-| Observabilidade | **Logs, status e health check inicialmente** |
-| Scheduler | **Não tornar dependência crítica do lançamento** |
-| Escala inicial | **Uma instância da aplicação** |
-| Microserviços | **Não introduzir no MVP** |
+| Frontend | **Controlar módulos opcionais por configuração** |
+| Escala inicial | **Uma instância** |
+| Microserviços / Redis / Celery | **Não introduzir no MVP** |
 
-Cinco princípios passam a orientar especialmente o processamento de documentos:
+As decisões novas ou alteradas devem ser registradas em ADR quando representarem mudança arquitetural relevante.
 
-1. **persistir antes de processar;**
-2. **deduplicar antes de utilizar IA;**
-3. **isolar o componente probabilístico;**
-4. **validar deterministicamente a saída da IA;**
-5. **preservar rastreabilidade até a transação final.**
+Mudança em regra de negócio deve vir acompanhada de teste.
 
 ---
 
@@ -808,46 +771,51 @@ Cinco princípios passam a orientar especialmente o processamento de documentos:
 
 | Risco | Impacto | Prioridade | Tratamento |
 |---|---|---:|---|
-| Matching ainda utiliza tolerâncias antigas | Consolidação incorreta | Alta | Implementar match exato |
-| Conceito de liquidez não está formalizado | Pagamento por origem inválida | Alta | Normalizar regra |
-| Rollover parcial precisa validação | Fatura inconsistente | Alta | Completar REQ-PAG-02 |
-| Analytics pode duplicar pagamento | Indicadores incorretos | Alta | Identificação explícita |
-| Arquivo local na VPS | Perda/backup difícil | Alta | Object storage |
-| Falha durante processamento em background | Documento pode ficar incompleto | Média | Status persistido e possibilidade de reprocessamento |
-| Saída da IA sem barreira suficiente | Dados financeiros incorretos | Alta | Validação + revisão humana |
-| Modelo/provider acoplado | Custo e manutenção | Média | Configuração centralizada |
-| Baixa rastreabilidade de execução | Diagnóstico difícil | Média | Registrar status/provider/duração |
-| Poucos testes de fluxos críticos | Regressão | Alta | Priorizar testes |
+| Modelos de IA configurados em vários pontos | Falha de extração/manutenção | Alta | Centralizar configuração |
+| Núcleo financeiro com baixa cobertura | Regressão silenciosa | Alta | Testes de caracterização |
+| Alteração prematura do fuzzy match | Parcelas associadas incorretamente | Alta | Preservar comportamento |
+| Uso de `print()` em produção | Diagnóstico difícil | Alta | Logging estruturado |
+| Migração de dados no boot | Deploy não determinístico | Alta | Mover para Alembic |
+| Arquivos no filesystem local | Persistência/backup frágeis | Alta | Object storage |
+| Entrega de notificações incompleta | Funcionalidade parcial | Média/Alta | Completar email |
+| Configuração insegura | Risco de sessão/dados | Alta | Segredos obrigatórios e revisão |
+| Poucos E2E confiáveis | Falhas chegam ao usuário | Alta | Consolidar cobertura |
+| Remoção de módulos com dependências | Regressões indiretas | Média | Ocultar antes de remover |
 
 ### 9.2 Próximos passos
 
-Recomenda-se que as próximas sprints priorizem:
+A sequência recomendada é:
 
-1. remover as tolerâncias antigas do matching;
-2. consolidar o conceito de conta de liquidez;
-3. implementar integralmente REQ-PAG-01, 02 e 03;
-4. formalizar o fluxo `documento → extração → confirmação → transação`;
-5. garantir deduplicação antes do processamento da IA;
-6. validar a saída da IA antes do domínio financeiro;
-7. registrar status do processamento;
-8. permitir reprocessamento controlado em caso de falha;
-9. centralizar provider e modelo de IA;
-10. implementar abstração de object storage;
-11. criar testes dos principais fluxos;
-12. validar PostgreSQL;
-13. alinhar VPS, storage, backup e deploy com o Grupo 1.
+1. centralizar os identificadores dos modelos de IA;
+2. executar regressão da extração com faturas sintéticas;
+3. criar testes dos fluxos de fatura, pagamento, transações e Analytics;
+4. preservar o fuzzy match até existir evidência para mudança;
+5. completar a entrega de notificações por email;
+6. substituir `print()` por logging estruturado;
+7. mover a migração executada no boot para Alembic;
+8. implementar configuração de módulos habilitados no frontend;
+9. consolidar os cenários E2E da Parte 1;
+10. implementar object storage para produção;
+11. endurecer configuração de segurança;
+12. implementar exclusão de conta e revisar política de privacidade;
+13. validar a PWA existente em dispositivos reais;
+14. preparar publicação Android pelo caminho definido com o cliente.
 
-Fila distribuída, workers independentes, tracing completo e dashboards operacionais devem permanecer como **evoluções futuras**, e não como requisitos do lançamento.
+A PWA já existe no projeto; portanto, o trabalho é de verificação e distribuição, e não de construção do zero.
+
+Para publicação, o retorno do cliente recomenda tratar Google Play e App Store como esforços diferentes: Google Play pode compor a primeira entrega, enquanto App Store deve ser planejada posteriormente devido ao maior esforço de empacotamento e requisitos nativos.
+
+Fila distribuída, múltiplos workers e tracing completo permanecem como evoluções futuras.
 
 ---
 
 ## 10. Conclusão
 
-A análise mostra que o Biveto-fin já possui uma base técnica suficiente para suportar o MVP.
+O Biveto-fin já possui uma base técnica capaz de suportar o MVP.
 
-Não é necessária uma nova arquitetura de backend.
+Não se recomenda reconstruir o backend nem substituir suas principais tecnologias.
 
-Recomenda-se preservar:
+Devem ser preservados:
 
 ```text
 FastAPI
@@ -856,73 +824,30 @@ Alembic
 PostgreSQL
 Docker
 Monólito modular
+Pipeline de extração existente
 ```
 
-e concentrar a evolução em três objetivos.
+Após a validação do cliente, o foco técnico passa a ser menos de **alterar regras existentes** e mais de **tornar seguro o lançamento daquilo que já funciona**.
 
-### Redução de escopo
-
-A aplicação deve expor inicialmente apenas as funcionalidades diretamente associadas ao lançamento.
-
-### Correção das regras financeiras
-
-Devem ser adequados principalmente:
-
-- match exato;
-- liquidez;
-- pagamentos parciais;
-- Analytics.
-
-### Confiabilidade do fluxo de documentos e IA
-
-O processamento deve seguir:
+As prioridades são:
 
 ```text
-Documento
-   │
-   ▼
-Validar
-   │
-   ▼
-Deduplicar
-   │
-   ▼
-Persistir
-   │
-   ▼
-Processar com IA
-   │
-   ▼
-Validar saída
-   │
-   ▼
-Revisão humana
-   │
-   ▼
-Domínio financeiro
+comportamento existente
+        │
+        ▼
+testes de caracterização
+        │
+        ▼
+correção dos bloqueadores técnicos
+        │
+        ▼
+redução da superfície do produto
+        │
+        ▼
+publicação
 ```
 
-A principal separação arquitetural passa a ser:
-
-```text
-           IA
-     probabilística
-          │
-          ▼
-      Extração
-          │
-═══════════════════
-Barreira determinística
-═══════════════════
-          │
-          ▼
-  Domínio financeiro
-    determinístico
-```
-
-Isso permite aproveitar IA sem permitir que comportamentos probabilísticos controlem diretamente valores, saldos ou regras financeiras.
-
-A arquitetura final continua simples:
+A arquitetura proposta continua:
 
 ```text
 React / PWA
@@ -935,7 +860,7 @@ FastAPI
      └── Serviço de IA
 ```
 
-Não são necessários, neste primeiro momento:
+e continua não exigindo, neste momento:
 
 ```text
 microserviços
@@ -944,8 +869,28 @@ Redis
 Celery
 fila distribuída
 workers independentes
-tracing distribuído
 múltiplas instâncias
 ```
 
-Assim, os princípios aproveitados da arquitetura anterior aumentam a confiabilidade e a rastreabilidade do Biveto-fin **sem tornar o MVP mais complexo do que o necessário**.
+O fluxo de IA permanece protegido por uma separação determinística:
+
+```text
+Documento
+   │
+   ▼
+Extração probabilística
+   │
+   ▼
+Validação + revisão
+   │
+   ▼
+Domínio financeiro determinístico
+```
+
+A principal mudança de perspectiva é que a evolução do projeto deve partir daquilo que está **versionado, funcionando e protegido por testes**, e não apenas daquilo que foi proposto documentalmente.
+
+Para a disciplina de **Gerência de Configuração e Evolução de Software**, esse princípio é central:
+
+> **o comportamento versionado forma a baseline; propostas alteram essa baseline somente através de mudanças rastreáveis, revisadas e testadas.**
+
+Assim, o MVP pode ser reduzido e estabilizado sem descartar trabalho já realizado e sem introduzir complexidade arquitetural desnecessária.
