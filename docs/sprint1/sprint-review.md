@@ -35,7 +35,8 @@ Detalhamento completo na [issue #4](https://github.com/AppFinanceiro-GECS/doc-bi
 
 | Nome do Trio/Dupla | Atividade | Evidência |
 | --- | --- | --- |
-| André Ricardo Meyer, Giovanni Dornelas | Diagnóstico do backend e da camada de dados e proposta inicial de arquitetura | [diagnostico_backend_dados_e_arquitetura.md](entregaveis/diagnostico_backend_dados_e_arquitetura.md) |
+| André Ricardo Meyer, Giovanni Dornelas | Diagnóstico do backend e da camada de dados| [diagnostico_backend_dados_e_arquitetura.md](entregaveis/diagnostico_backend_dados_e_arquitetura.md) |
+| André Ricardo Meyer, Giovanni Dornelas | Proposta inicial de arquitetura para o MVP | [diagnostico_backend_dados_e_arquitetura.md](entregaveis/diagnostico_backend_dados_e_arquitetura.md) |
 | André Ricardo Meyer, Giovanni Dornelas | Análise de uso e custo do Gemini | [analise-uso-custo-gemini-2.md](entregaveis/analise-uso-custo-gemini-2.md) |
 | André Ricardo Meyer, Giovanni Dornelas | Soluções propostas pelo cliente em relação ao backend + sugestões nossas | [proposta-trabalho-backend.md](entregaveis/proposta-trabalho-backend.md) |
 
