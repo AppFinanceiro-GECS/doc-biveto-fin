@@ -40,9 +40,20 @@ Detalhamento completo na [issue #4](https://github.com/AppFinanceiro-GECS/doc-bi
 | André Ricardo Meyer, Giovanni Dornelas | Análise de uso e custo do Gemini | [analise-uso-custo-gemini-2.md](entregaveis/analise-uso-custo-gemini-2.md) |
 | André Ricardo Meyer, Giovanni Dornelas | Soluções propostas pelo cliente em relação ao backend + sugestões nossas | [proposta-trabalho-backend.md](entregaveis/proposta-trabalho-backend.md) |
 
+### Grupo 3 — Regras de negócio e fluxos financeiros
+
+Detalhamento completo na [issue #2](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/2).
+
+| Nome do Trio/Dupla | Atividade | Evidência |
+| --- | --- | --- |
+| Pedro Paulo | Levantou as regras de negócio existentes, revisou os fluxos financeiros e identificou ruídos contábeis (ex: tolerância de 5% no match e margens de centavos do OCR). | [LOGIC_MAP.md](entregaveis/LOGIC_MAP.md) |
+| Pedro Paulo | Definiu a Regra Mestra do MVP (Fluxo Financeiro Consolidado), estabelecendo cartões como passivos transitórios e contas de liquidez como origem real de pagamentos. | [LOGIC_MAP.md](entregaveis/LOGIC_MAP.md) |
+| Pedro Paulo | Registrou os requisitos estritos de pagamento (REQ-PAG-01, REQ-PAG-02 e REQ-PAG-03), incluindo bloqueio de crédito para pagar crédito e isolamento de transações no Analytics. | [LOGIC_MAP.md](entregaveis/LOGIC_MAP.md) |
+| Pedro Paulo | Atualizou a tabela de regras de negócio, removendo as tolerâncias antigas, e elaborou os slides de apresentação do novo escopo técnico para validação. | [LOGIC_MAP.md](entregaveis/LOGIC_MAP.md) e Apresentação de MVP |
+
 ### Grupo 4 — Produto, requisitos e frontend
 
-Detalhamento completo na [issue #NN](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/6).
+Detalhamento completo na [issue #6](https://github.com/AppFinanceiro-GECS/doc-biveto-fin/issues/6).
 
 | Nome do Trio/Dupla | Atividade | Evidência |
 | --- | --- | --- |
