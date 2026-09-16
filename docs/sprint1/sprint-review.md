@@ -68,7 +68,7 @@ Detalhamento completo na [issue #3](https://github.com/AppFinanceiro-GECS/doc-bi
 | Nome do Trio/Dupla | Atividade | Evidência |
 | --- | --- | --- |
 | Ana Luiza Pfeilsticker, Gabriel Souza | Construção do manual de marca | https://www.figma.com/design/jWIl7Xa4jKs7m5UmEb6oOe/App-Financeiro?node-id=0-1&t=6beOrK98jMZBvZxw-1 |
-| João V. Farias | Mapeamento das telas e fluxos atuais | https://www.figma.com/design/jWIl7Xa4jKs7m5UmEb6oOe/App-Financeiro?node-id=0-1&t=6beOrK98jMZBvZxw-1 |
+| João V. Farias | Mapeamento das telas, fluxos atuais e fluxo idealizados para mobile/desktop | https://www.figma.com/design/jWIl7Xa4jKs7m5UmEb6oOe/App-Financeiro?node-id=0-1&t=6beOrK98jMZBvZxw-1 |
 
 
 ## Registro
